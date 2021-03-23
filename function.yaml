@@ -1,0 +1,77 @@
+# Copyright 2021 Triggermesh Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: flow.triggermesh.io/v1alpha1
+kind: Function
+metadata:
+  name: inline-python-function
+spec:
+  runtime: python
+  entrypoint: foo
+  code: |
+    import json
+    import datetime
+
+    def foo(event, context):
+        current_time = datetime.datetime.now().time()
+        body = {
+            "message": "Hello, the current time is " + str(current_time)
+        }
+        response = {
+            "statusCode": 200,
+            "body": json.dumps(body)
+        }
+        return response
+  sink: 
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: sockeye
+
+---
+
+apiVersion: flow.triggermesh.io/v1alpha1
+kind: Function
+metadata:
+  name: inline-node-function
+spec:
+  runtime: node
+  entrypoint: sayHelloAsync
+  code: |
+    async function justWait() {
+      return new Promise((resolve, reject) => setTimeout(resolve, 100));
+    }
+
+    module.exports.sayHelloAsync = async (event) => {
+      await justWait();
+      return {hello: event && event.name || "Missing a name property in the event's JSON body"};
+    };
+  sink: 
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: sockeye
+
+---
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: sockeye
+spec:
+  template:
+    spec:
+      containers:
+      - image: docker.io/n3wscott/sockeye:v0.7.0
+        name: user-container

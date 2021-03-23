@@ -1,0 +1,12 @@
+service: node-demo-service
+description: Sample knative service
+provider:
+  name: triggermesh
+functions:
+  node-function:
+    source: handler.js
+    runtime: https://raw.githubusercontent.com/triggermesh/knative-lambda-runtime/master/node10/runtime.yaml
+    buildargs:
+    - HANDLER=handler.sayHelloAsync
+    environment:
+      foo: bar

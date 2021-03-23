@@ -1,0 +1,24 @@
+# Top level files and directories
+/.assets/
+/.circleci/
+/.git/
+/test/
+/hack/
+!/hack/inc.Codegen.mk
+/.dockerignore
+/.gcloudignore
+/cloudbuild.yaml
+/config/
+
+# Files copied to KO_DATA_PATH directory
+!/.git/HEAD
+!/.git/refs/
+
+# Patterns
+**/*.md
+**/*_test.go
+**/.gitignore
+**/Dockerfile
+
+# Binaries
+**/_output/

@@ -1,0 +1,108 @@
+# Copyright 2021 Triggermesh Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: triggermesh-function-admin
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      function.flow.triggermesh.io/controller: "true"
+rules: [] # Rules are automatically filled in by the controller manager.
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: triggermesh-function-core
+  labels:
+    function.flow.triggermesh.io/controller: "true"
+rules:
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    - events
+    verbs: 
+    - get
+    - list
+    - create
+    - update
+    - delete
+    - patch
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    - services
+    verbs: 
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - coordination.k8s.io
+    resources: 
+    - leases
+    verbs:
+    - get
+    - list
+    - create
+    - update
+    - delete
+    - patch
+    - watch
+  - apiGroups:
+    - flow.triggermesh.io
+    resources:
+    - functions
+    verbs:
+    - get
+    - list
+    - create
+    - update
+    - delete
+    - deletecollection
+    - patch
+    - watch
+---
+# Use this aggregated ClusterRole when you need readonly access to "Addressables"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: addressable-resolver
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      duck.knative.dev/addressable: "true"
+rules: [] # Rules are automatically filled in by the controller manager.
+---
+# The role is needed for the aggregated role addressable-resolver in knative-eventing to provide readonly access to "Addressables".
+# see https://github.com/knative/eventing/blob/release-0.16/docs/spec/channel.md#aggregated-addressable-resolver-clusterrole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: function-addressable-resolver
+  labels:
+    duck.knative.dev/addressable: "true"
+rules:
+- apiGroups:
+  - routing.triggermesh.io
+  resources:
+  - functions
+  - functions/status
+  verbs:
+  - get
+  - list
+  - watch
