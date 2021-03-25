@@ -114,7 +114,7 @@ metadata:
     duck.knative.dev/addressable: "true"
 rules:
 - apiGroups:
-  - routing.triggermesh.io
+  - flow.triggermesh.io
   resources:
   - functions
   - functions/status

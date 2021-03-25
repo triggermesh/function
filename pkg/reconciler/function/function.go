@@ -127,8 +127,8 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 
 	o.Status.Address = &duckv1.Addressable{
 		URL: &apis.URL{
-			Scheme: ksvc.Status.Address.URL.Scheme,
-			Host:   ksvc.Status.Address.URL.Host,
+			Scheme: ksvc.Status.URL.Scheme,
+			Host:   ksvc.Status.URL.Host,
 		},
 	}
 	o.Status.MarkServiceAvailable()
@@ -207,6 +207,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEnvVar("CE_TYPE", eventType),
 		resources.KnSvcEnvVar("CE_SOURCE", f.SelfLink),
 		resources.KnSvcEnvVar("CE_SUBJECT", handler),
+		resources.KnSvcVisibility(f.Spec.Public),
 		resources.KnSvcLabel(map[string]string{labelKey: f.Name}),
 		resources.KnSvcOwner(f),
 	)

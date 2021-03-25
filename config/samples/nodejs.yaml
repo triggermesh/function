@@ -12,31 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: flow.triggermesh.io/v1alpha1
-kind: Function
+apiVersion: sources.knative.dev/v1alpha2
+kind: PingSource
 metadata:
-  name: inline-python-function
+  name: ping-source
 spec:
-  runtime: python
-  entrypoint: foo
-  code: |
-    import urllib.request
-
-    def foo(event, context):
-      resp = urllib.request.urlopen(event['url'])
-      page = resp.read()
-
-      response = {
-        "statusCode": resp.status,
-        "body": str(page)
-      }
-
-      return response
-  sink: 
+  schedule: "*/1 * * * *"
+  jsonData: '{"name":""}'
+  sink:
     ref:
-      apiVersion: serving.knative.dev/v1
-      kind: Service
-      name: sockeye
+      apiVersion: flow.triggermesh.io/v1alpha1
+      kind: Function
+      name: inline-node-function
 
 ---
 
@@ -46,17 +33,12 @@ metadata:
   name: inline-node-function
 spec:
   runtime: node
-  entrypoint: sayHelloAsync
+  entrypoint: transformName
   code: |
-    async function justWait() {
-      return new Promise((resolve, reject) => setTimeout(resolve, 100));
-    }
-
-    module.exports.sayHelloAsync = async (event) => {
+    module.exports.transformName = async (event) => {
       if (event.name == "") {
         event.name = "placeholder";
       }
-      await justWait();
       return event;
     };
   sink: 
@@ -64,21 +46,6 @@ spec:
       apiVersion: serving.knative.dev/v1
       kind: Service
       name: sockeye
-
----
-
-apiVersion: flow.triggermesh.io/v1alpha1
-kind: Function
-metadata:
-  name: inline-ruby-function
-spec:
-  runtime: ruby
-  entrypoint: endpoint
-  code: |
-    def endpoint(event:, context:)
-    hash = {date: Time.new}
-    { statusCode: 200, body: JSON.generate(hash) }
-    end
 
 ---
 

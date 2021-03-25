@@ -53,6 +53,7 @@ var (
 type FunctionSpec struct {
 	Runtime    string              `json:"runtime"`
 	Entrypoint string              `json:"entrypoint"`
+	Public     bool                `json:"public"`
 	Code       string              `json:"code"`
 	Sink       *duckv1.Destination `json:"sink"`
 }

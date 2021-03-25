@@ -22,7 +22,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	network "knative.dev/networking/pkg"
 	"knative.dev/pkg/kmeta"
+	"knative.dev/serving/pkg/apis/serving"
 	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 )
 
@@ -89,6 +91,12 @@ func KnSvcOwner(o kmeta.OwnerRefable) knSvcOption {
 
 func KnSvcLabel(labels map[string]string) knSvcOption {
 	return func(svc *servingv1.Service) {
+		if svc.Labels != nil {
+			for k, v := range labels {
+				svc.Labels[k] = v
+			}
+			return
+		}
 		svc.SetLabels(labels)
 	}
 }
@@ -126,6 +134,22 @@ func KnSvcMountCm(cmSrc, fileDst string) knSvcOption {
 func KnSvcEntrypoint(command string) knSvcOption {
 	return func(svc *servingv1.Service) {
 		svc.Spec.ConfigurationSpec.Template.Spec.Containers[0].Command = []string{command}
+	}
+}
+
+func KnSvcVisibility(public bool) knSvcOption {
+	return func(svc *servingv1.Service) {
+		if public {
+			return
+		}
+		if svc.Labels != nil {
+			svc.Labels[network.VisibilityLabelKey] = serving.VisibilityClusterLocal
+			return
+		}
+		labels := map[string]string{
+			network.VisibilityLabelKey: serving.VisibilityClusterLocal,
+		}
+		svc.Labels = labels
 	}
 }
 
