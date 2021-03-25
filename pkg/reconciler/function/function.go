@@ -177,20 +177,22 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		return nil, err
 	}
 
-	dest := f.Spec.Sink.DeepCopy()
-	if dest.Ref != nil {
-		if dest.Ref.Namespace == "" {
-			dest.Ref.Namespace = f.GetNamespace()
-		}
-	}
-
 	var sink string
-	uri, err := r.sinkResolver.URIFromDestinationV1(ctx, *dest, f)
-	if err != nil {
-		logger.Infof("Sink resolution error: %v", err)
-	} else {
-		f.Status.SinkURI = uri
-		sink = uri.String()
+	if f.Spec.Sink != nil {
+		dest := f.Spec.Sink.DeepCopy()
+		if dest.Ref != nil {
+			if dest.Ref.Namespace == "" {
+				dest.Ref.Namespace = f.GetNamespace()
+			}
+		}
+
+		uri, err := r.sinkResolver.URIFromDestinationV1(ctx, *dest, f)
+		if err != nil {
+			logger.Infof("Sink resolution error: %v", err)
+		} else {
+			f.Status.SinkURI = uri
+			sink = uri.String()
+		}
 	}
 
 	filename := fmt.Sprintf("source.%s", fileExtension(f.Spec.Runtime))
@@ -202,9 +204,8 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEntrypoint(klrEntrypoint),
 		resources.KnSvcEnvVar("K_SINK", sink),
 		resources.KnSvcEnvVar("_HANDLER", handler),
-		resources.KnSvcEnvVar("RESPONSE_WRAPPER", "CLOUDEVENTS"),
 		resources.KnSvcEnvVar("CE_TYPE", eventType),
-		resources.KnSvcEnvVar("CE_K_SERVICE", f.SelfLink),
+		resources.KnSvcEnvVar("CE_SOURCE", f.SelfLink),
 		resources.KnSvcEnvVar("CE_SUBJECT", handler),
 		resources.KnSvcLabel(map[string]string{labelKey: f.Name}),
 		resources.KnSvcOwner(f),

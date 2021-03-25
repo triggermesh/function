@@ -66,9 +66,9 @@ spec:
         - name: METRICS_DOMAIN
           value: triggermesh.io/routing
 
-        - name: RUNTIME_KLR_PYTHON_37
-          value: gcr.io/triggermesh/knative-lambda-python37:latest
-        - name: RUNTIME_KLR_NODE_10
-          value: gcr.io/triggermesh/knative-lambda-node10:latest
-        - name: RUNTIME_KLR_RUBY_25
-          value: gcr.io/triggermesh/knative-lambda-ruby25:latest
+        - name: RUNTIME_KLR_PYTHON
+          value: docker.io/tzununbekov/klr-python-37-custom
+        - name: RUNTIME_KLR_NODE
+          value: docker.io/tzununbekov/klr-node-10-custom
+        - name: RUNTIME_KLR_RUBY
+          value: docker.io/tzununbekov/klr-ruby-25-custom

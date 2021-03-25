@@ -30,6 +30,7 @@ import (
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/resolver"
 	"knative.dev/pkg/tracker"
+	servingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	servingv1client "knative.dev/serving/pkg/client/injection/client"
 	knsvcinformer "knative.dev/serving/pkg/client/injection/informers/serving/v1/service"
 
@@ -76,12 +77,16 @@ func NewController(
 	functionInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	knSvcInformer.Informer().AddEventHandler(controller.HandleAll(
-		// Call the tracker's OnChanged method, but we've seen the objects
-		// coming through this path missing TypeMeta, so ensure it is properly
-		// populated.
 		controller.EnsureTypeMeta(
 			r.Tracker.OnChanged,
-			corev1.SchemeGroupVersion.WithKind("Service"),
+			servingv1.SchemeGroupVersion.WithKind("Service"),
+		),
+	))
+
+	cmInformer.Informer().AddEventHandler(controller.HandleAll(
+		controller.EnsureTypeMeta(
+			r.Tracker.OnChanged,
+			corev1.SchemeGroupVersion.WithKind("ConfigMap"),
 		),
 	))
 

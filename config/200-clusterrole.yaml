@@ -46,10 +46,25 @@ rules:
     - ""
     resources:
     - configmaps
+    verbs:
+    - get
+    - list
+    - create
+    - update
+    - delete
+    - patch
+    - watch
+  - apiGroups:
+    - serving.knative.dev
+    resources:
     - services
     verbs: 
     - get
     - list
+    - create
+    - update
+    - delete
+    - patch
     - watch
   - apiGroups:
     - coordination.k8s.io
@@ -67,6 +82,7 @@ rules:
     - flow.triggermesh.io
     resources:
     - functions
+    - functions/status
     verbs:
     - get
     - list

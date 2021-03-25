@@ -20,19 +20,18 @@ spec:
   runtime: python
   entrypoint: foo
   code: |
-    import json
-    import datetime
+    import urllib.request
 
     def foo(event, context):
-        current_time = datetime.datetime.now().time()
-        body = {
-            "message": "Hello, the current time is " + str(current_time)
-        }
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(body)
-        }
-        return response
+      resp = urllib.request.urlopen(event['url'])
+      page = resp.read()
+
+      response = {
+        "statusCode": resp.status,
+        "body": str(page)
+      }
+
+      return response
   sink: 
     ref:
       apiVersion: serving.knative.dev/v1
@@ -54,14 +53,32 @@ spec:
     }
 
     module.exports.sayHelloAsync = async (event) => {
+      if (event.name == "") {
+        event.name = "placeholder";
+      }
       await justWait();
-      return {hello: event && event.name || "Missing a name property in the event's JSON body"};
+      return event;
     };
   sink: 
     ref:
       apiVersion: serving.knative.dev/v1
       kind: Service
       name: sockeye
+
+---
+
+apiVersion: flow.triggermesh.io/v1alpha1
+kind: Function
+metadata:
+  name: inline-ruby-function
+spec:
+  runtime: ruby
+  entrypoint: endpoint
+  code: |
+    def endpoint(event:, context:)
+    hash = {date: Time.new}
+    { statusCode: 200, body: JSON.generate(hash) }
+    end
 
 ---
 
