@@ -204,6 +204,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEntrypoint(klrEntrypoint),
 		resources.KnSvcEnvVar("K_SINK", sink),
 		resources.KnSvcEnvVar("_HANDLER", handler),
+		resources.KnSvcEnvVar("RESPONSE_WRAPPER", "CLOUDEVENTS"),
 		resources.KnSvcEnvVar("CE_TYPE", eventType),
 		resources.KnSvcEnvVar("CE_SOURCE", f.SelfLink),
 		resources.KnSvcEnvVar("CE_SUBJECT", handler),

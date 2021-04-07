@@ -12,19 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: sockeye
-spec:
-  template:
-    spec:
-      containers:
-      - image: docker.io/n3wscott/sockeye:v0.7.0
-        name: user-container
-
----
-
 apiVersion: flow.triggermesh.io/v1alpha1
 kind: Function
 metadata:
@@ -46,8 +33,3 @@ spec:
       }
 
       return response
-  sink: 
-    ref:
-      apiVersion: serving.knative.dev/v1
-      kind: Service
-      name: sockeye

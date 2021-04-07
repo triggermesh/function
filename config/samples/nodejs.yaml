@@ -12,21 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: sources.knative.dev/v1alpha2
-kind: PingSource
-metadata:
-  name: ping-source
-spec:
-  schedule: "*/1 * * * *"
-  jsonData: '{"name":""}'
-  sink:
-    ref:
-      apiVersion: flow.triggermesh.io/v1alpha1
-      kind: Function
-      name: inline-node-function
-
----
-
 apiVersion: flow.triggermesh.io/v1alpha1
 kind: Function
 metadata:
@@ -41,21 +26,3 @@ spec:
       }
       return event;
     };
-  sink: 
-    ref:
-      apiVersion: serving.knative.dev/v1
-      kind: Service
-      name: sockeye
-
----
-
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: sockeye
-spec:
-  template:
-    spec:
-      containers:
-      - image: docker.io/n3wscott/sockeye:v0.7.0
-        name: user-container

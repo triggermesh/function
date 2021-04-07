@@ -67,8 +67,8 @@ spec:
           value: triggermesh.io/routing
 
         - name: RUNTIME_KLR_PYTHON
-          value: docker.io/tzununbekov/klr-python-37-custom
+          value: gcr.io/triggermesh/knative-lambda-python37:v1.4.1
         - name: RUNTIME_KLR_NODE
-          value: docker.io/tzununbekov/klr-node-10-custom
+          value: gcr.io/triggermesh/knative-lambda-node10:v1.4.1
         - name: RUNTIME_KLR_RUBY
-          value: docker.io/tzununbekov/klr-ruby-25-custom
+          value: gcr.io/triggermesh/knative-lambda-ruby25:v1.4.1
