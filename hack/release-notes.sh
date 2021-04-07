@@ -14,7 +14,7 @@ if ! git rev-list ${RELEASE} >/dev/null 2>&1; then
 	exit
 fi
 
-KREPO="filter"
+KREPO="function"
 BASE_URL="https://github.com/triggermesh/${KREPO}/releases/download/${RELEASE}"
 PREV_RELEASE=${PREV_RELEASE:-$(git describe --tags --abbrev=0 ${RELEASE}^ 2>/dev/null)}
 PREV_RELEASE=${PREV_RELEASE:-$(git rev-list --max-parents=0 ${RELEASE}^ 2>/dev/null)}
@@ -46,7 +46,7 @@ ${NOTABLE_CHANGES}
 
 ## Installation
 
-Download Triggermesh Filter for ${RELEASE}
+Download Triggermesh Function for ${RELEASE}
 
 ${RELEASE_ASSETS_TABLE}
 
