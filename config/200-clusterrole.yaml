@@ -32,7 +32,6 @@ rules:
   - apiGroups:
     - ""
     resources:
-    - secrets
     - events
     verbs: 
     - get

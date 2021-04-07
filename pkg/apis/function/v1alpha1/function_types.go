@@ -31,17 +31,17 @@ type Function struct {
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec holds the desired state of the Filter (from the client).
+	// Spec holds the desired state of the Function (from the client).
 	// +optional
 	Spec FunctionSpec `json:"spec,omitempty"`
 
-	// Status communicates the observed state of the Filter (from the controller).
+	// Status communicates the observed state of the Function (from the controller).
 	// +optional
 	Status FunctionStatus `json:"status,omitempty"`
 }
 
 var (
-	// Check that Filter can be validated and defaulted.
+	// Check that Function can be validated and defaulted.
 	_ apis.Validatable   = (*Function)(nil)
 	_ apis.Defaultable   = (*Function)(nil)
 	_ kmeta.OwnerRefable = (*Function)(nil)
@@ -49,7 +49,7 @@ var (
 	_ duckv1.KRShaped = (*Function)(nil)
 )
 
-// FilterSpec contains CEL expression string and the destination sink
+// FunctionSpec holds the desired state of the Function Specification
 type FunctionSpec struct {
 	Runtime    string              `json:"runtime"`
 	Entrypoint string              `json:"entrypoint"`
@@ -58,16 +58,16 @@ type FunctionSpec struct {
 	Sink       *duckv1.Destination `json:"sink"`
 }
 
-// FilterStatus communicates the observed state of the Filter (from the controller).
+// FunctionStatus communicates the observed state of the Function (from the controller).
 type FunctionStatus struct {
 	duckv1.SourceStatus `json:",inline"`
 
-	// Address holds the information needed to connect this Filter up to receive events.
+	// Address holds the information needed to connect this Function up to receive events.
 	// +optional
 	Address *duckv1.Addressable `json:"address,omitempty"`
 }
 
-// FilterList is a list of Filter resources
+// FunctionList is a list of Function resources
 //
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type FunctionList struct {
