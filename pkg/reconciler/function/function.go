@@ -208,6 +208,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEnvVar("CE_TYPE", eventType),
 		resources.KnSvcEnvVar("CE_SOURCE", f.SelfLink),
 		resources.KnSvcEnvVar("CE_SUBJECT", handler),
+		resources.KnSvcAnnotation("flow.triggermesh.io/codeVersion", cm.ResourceVersion),
 		resources.KnSvcVisibility(f.Spec.Public),
 		resources.KnSvcLabel(map[string]string{labelKey: f.Name}),
 		resources.KnSvcOwner(f),
@@ -223,8 +224,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 	}
 	actualKsvc := ksvcList[0]
 
-	if !reflect.DeepEqual(actualKsvc.Spec.ConfigurationSpec.Template.Spec,
-		expectedKsvc.Spec.ConfigurationSpec.Template.Spec) {
+	if !reflect.DeepEqual(actualKsvc.Spec, expectedKsvc.Spec) {
 		actualKsvc.Spec = expectedKsvc.Spec
 		return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
 	}

@@ -81,6 +81,15 @@ func KnSvcEnvVar(name, val string) knSvcOption {
 	}
 }
 
+func KnSvcAnnotation(key, value string) knSvcOption {
+	return func(svc *servingv1.Service) {
+		if svc.Spec.Template.Annotations == nil {
+			svc.Spec.Template.Annotations = make(map[string]string)
+		}
+		svc.Spec.Template.Annotations[key] = value
+	}
+}
+
 func KnSvcOwner(o kmeta.OwnerRefable) knSvcOption {
 	return func(svc *servingv1.Service) {
 		svc.SetOwnerReferences([]metav1.OwnerReference{
