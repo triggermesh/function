@@ -1,0 +1,53 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: azureblob-slack
+  namespace: antoineco
+spec:
+  template:
+    spec:
+      containers:
+      - image: ko://azureblobslack
+---
+apiVersion: messaging.knative.dev/v1
+kind: Channel
+metadata:
+  name: azureblob-slack
+  namespace: antoineco
+---
+apiVersion: messaging.knative.dev/v1beta1
+kind: Subscription
+metadata:
+  name: azureblob-slack
+  namespace: antoineco
+spec:
+  channel:
+    apiVersion: messaging.knative.dev/v1
+    kind: Channel
+    name: azureblob-slack
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: azureblob-slack
+  reply:
+    ref:
+      apiVersion: targets.triggermesh.io/v1alpha1
+      kind: SlackTarget
+      name: chat-notifications
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: azureblob-slack
+  namespace: antoineco
+spec:
+  broker: dispatch
+  filter:
+    attributes:
+      source: /subscriptions/15537daf-e607-4df8-b2ef-277248b205b3/resourceGroups/storage/providers/Microsoft.Storage/storageAccounts/c2fotriggermeshdemo
+  subscriber:
+    ref:
+      apiVersion: messaging.knative.dev/v1
+      kind: Channel
+      name: azureblob-slack

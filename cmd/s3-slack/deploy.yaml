@@ -1,0 +1,53 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: s3-slack
+  namespace: antoineco
+spec:
+  template:
+    spec:
+      containers:
+      - image: ko://s3slack
+---
+apiVersion: messaging.knative.dev/v1
+kind: Channel
+metadata:
+  name: s3-slack
+  namespace: antoineco
+---
+apiVersion: messaging.knative.dev/v1beta1
+kind: Subscription
+metadata:
+  name: s3-slack
+  namespace: antoineco
+spec:
+  channel:
+    apiVersion: messaging.knative.dev/v1
+    kind: Channel
+    name: s3-slack
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: s3-slack
+  reply:
+    ref:
+      apiVersion: targets.triggermesh.io/v1alpha1
+      kind: SlackTarget
+      name: chat-notifications
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: s3-slack
+  namespace: antoineco
+spec:
+  broker: dispatch
+  filter:
+    attributes:
+      source: arn:aws:s3:::c2fo-triggermesh-demo
+  subscriber:
+    ref:
+      apiVersion: messaging.knative.dev/v1
+      kind: Channel
+      name: s3-slack
