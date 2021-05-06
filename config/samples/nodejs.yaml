@@ -18,6 +18,9 @@ metadata:
   name: inline-node-function
 spec:
   runtime: node
+  ceOverrides:
+    extensions:
+      type: io.triggermesh.nodejs.sample
   entrypoint: transformName
   code: |
     module.exports.transformName = async (event) => {

@@ -51,11 +51,12 @@ var (
 
 // FunctionSpec holds the desired state of the Function Specification
 type FunctionSpec struct {
-	Runtime    string              `json:"runtime"`
-	Entrypoint string              `json:"entrypoint"`
-	Public     bool                `json:"public"`
-	Code       string              `json:"code"`
-	Sink       *duckv1.Destination `json:"sink"`
+	Runtime             string                      `json:"runtime"`
+	Entrypoint          string                      `json:"entrypoint"`
+	Public              bool                        `json:"public,omitempty"`
+	Code                string                      `json:"code"`
+	CloudEventOverrides *duckv1.CloudEventOverrides `json:"ceOverrides"`
+	Sink                *duckv1.Destination         `json:"sink"`
 }
 
 // FunctionStatus communicates the observed state of the Function (from the controller).

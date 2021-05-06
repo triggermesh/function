@@ -19,6 +19,9 @@ metadata:
 spec:
   runtime: ruby
   public: true
+  ceOverrides:
+    extensions:
+      type: io.triggermesh.ruby.sample
   entrypoint: endpoint
   code: |
     def endpoint(event:, context:)
