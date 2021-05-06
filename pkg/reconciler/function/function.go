@@ -224,8 +224,10 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 	}
 	actualKsvc := ksvcList[0]
 
-	if !reflect.DeepEqual(actualKsvc.Spec, expectedKsvc.Spec) {
+	if !reflect.DeepEqual(actualKsvc.Spec, expectedKsvc.Spec) ||
+		!reflect.DeepEqual(actualKsvc.Labels, expectedKsvc.Labels) {
 		actualKsvc.Spec = expectedKsvc.Spec
+		actualKsvc.Labels = expectedKsvc.Labels
 		return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
 	}
 	return actualKsvc, nil
