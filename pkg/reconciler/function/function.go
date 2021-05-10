@@ -46,10 +46,15 @@ import (
 )
 
 const (
-	eventType     = "io.triggermesh.flow.function"
 	klrEntrypoint = "/opt/aws-custom-runtime"
 	labelKey      = "flow.trigermesh.io/function"
 )
+
+type ceAttributes struct {
+	Type    string
+	Source  string
+	Subject string
+}
 
 // Reconciler implements addressableservicereconciler.Interface for
 // AddressableService resources.
@@ -102,8 +107,11 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 	}
 	o.Status.MarkConfigmapAvailable()
 
+	// Parse CE overrides
+	ceAttr := r.ceAttributes(o)
+
 	// Reconcile Transformation Adapter
-	ksvc, err := r.reconcileKnService(ctx, o, cm)
+	ksvc, err := r.reconcileKnService(ctx, o, cm, ceAttr)
 	if err != nil {
 		logger.Error("Error reconciling Kn Service", zap.Error(err))
 		o.Status.MarkServiceUnavailable(o.Name)
@@ -133,7 +141,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 	}
 	o.Status.MarkServiceAvailable()
 
-	o.Status.CloudEventAttributes = r.createCloudEventAttributes(o.SelfLink)
+	o.Status.CloudEventAttributes = r.statusAttributes(ceAttr)
 	o.Status.MarkSinkAvailable()
 
 	logger.Debug("Transformation reconciled")
@@ -169,7 +177,7 @@ func (r *Reconciler) reconcileConfigmap(ctx context.Context, f *functionv1alpha1
 	return actualCm, nil
 }
 
-func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1.Function, cm *corev1.ConfigMap) (*servingv1.Service, error) {
+func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1.Function, cm *corev1.ConfigMap, ceAttr ceAttributes) (*servingv1.Service, error) {
 	logger := logging.FromContext(ctx)
 
 	image, err := r.lookupRuntimeImage(f.Spec.Runtime)
@@ -205,9 +213,9 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEnvVar("K_SINK", sink),
 		resources.KnSvcEnvVar("_HANDLER", handler),
 		resources.KnSvcEnvVar("RESPONSE_FORMAT", "CLOUDEVENTS"),
-		resources.KnSvcEnvVar("CE_TYPE", eventType),
-		resources.KnSvcEnvVar("CE_SOURCE", f.SelfLink),
-		resources.KnSvcEnvVar("CE_SUBJECT", handler),
+		resources.KnSvcEnvVar("CE_TYPE", ceAttr.Type),
+		resources.KnSvcEnvVar("CE_SOURCE", ceAttr.Source),
+		resources.KnSvcEnvVar("CE_SUBJECT", ceAttr.Subject),
 		resources.KnSvcAnnotation("flow.triggermesh.io/codeVersion", cm.ResourceVersion),
 		resources.KnSvcVisibility(f.Spec.Public),
 		resources.KnSvcLabel(map[string]string{labelKey: f.Name}),
@@ -233,11 +241,34 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 	return actualKsvc, nil
 }
 
-func (r *Reconciler) createCloudEventAttributes(source string) []duckv1.CloudEventAttributes {
+func (r *Reconciler) ceAttributes(f *functionv1alpha1.Function) ceAttributes {
+	res := ceAttributes{
+		Source:  f.SelfLink,
+		Subject: f.Spec.Entrypoint,
+	}
+
+	if f.Spec.CloudEventOverrides == nil {
+		return res
+	}
+
+	for k, v := range f.Spec.CloudEventOverrides.Extensions {
+		switch strings.ToLower(k) {
+		case "type":
+			res.Type = v
+		case "source":
+			res.Source = v
+		case "subject":
+			res.Subject = v
+		}
+	}
+	return res
+}
+
+func (r *Reconciler) statusAttributes(ceAttr ceAttributes) []duckv1.CloudEventAttributes {
 	return []duckv1.CloudEventAttributes{
 		{
-			Type:   eventType,
-			Source: source,
+			Type:   ceAttr.Type,
+			Source: ceAttr.Source,
 		},
 	}
 }

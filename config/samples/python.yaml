@@ -19,6 +19,9 @@ metadata:
 spec:
   runtime: python
   public: true
+  ceOverrides:
+    extensions:
+      type: io.triggermesh.python.sample
   entrypoint: foo
   code: |
     import urllib.request
