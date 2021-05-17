@@ -15,5 +15,5 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=flow.triggermesh.io
+// +groupName=extensions.triggermesh.io
 package v1alpha1

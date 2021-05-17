@@ -21,7 +21,7 @@ package internalclientset
 import (
 	"fmt"
 
-	flowv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1"
+	extensionsv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -29,19 +29,19 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	FlowV1alpha1() flowv1alpha1.FlowV1alpha1Interface
+	ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	flowV1alpha1 *flowv1alpha1.FlowV1alpha1Client
+	extensionsV1alpha1 *extensionsv1alpha1.ExtensionsV1alpha1Client
 }
 
-// FlowV1alpha1 retrieves the FlowV1alpha1Client
-func (c *Clientset) FlowV1alpha1() flowv1alpha1.FlowV1alpha1Interface {
-	return c.flowV1alpha1
+// ExtensionsV1alpha1 retrieves the ExtensionsV1alpha1Client
+func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface {
+	return c.extensionsV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -65,7 +65,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.flowV1alpha1, err = flowv1alpha1.NewForConfig(&configShallowCopy)
+	cs.extensionsV1alpha1, err = extensionsv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.flowV1alpha1 = flowv1alpha1.NewForConfigOrDie(c)
+	cs.extensionsV1alpha1 = extensionsv1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -90,7 +90,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.flowV1alpha1 = flowv1alpha1.New(c)
+	cs.extensionsV1alpha1 = extensionsv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

@@ -62,13 +62,13 @@ func NewFilteredFunctionInformer(client internalclientset.Interface, namespace s
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.FlowV1alpha1().Functions(namespace).List(context.TODO(), options)
+				return client.ExtensionsV1alpha1().Functions(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.FlowV1alpha1().Functions(namespace).Watch(context.TODO(), options)
+				return client.ExtensionsV1alpha1().Functions(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&functionv1alpha1.Function{},
