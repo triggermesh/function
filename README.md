@@ -15,6 +15,8 @@ Function object specification is straightforward:
 
 - `public` - boolean value when set to `true` makes the function endpoint
   accessible from the Internet. The default value is `false`
+  
+- `ceOverrides` - cloudevents overrides
 
 - `entrypoint` - the name of the function in the code to use as an entrypoint
 
