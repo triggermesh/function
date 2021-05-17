@@ -17,5 +17,5 @@ limitations under the License.
 package function
 
 const (
-	GroupName = "flow.triggermesh.io"
+	GroupName = "extensions.triggermesh.io"
 )

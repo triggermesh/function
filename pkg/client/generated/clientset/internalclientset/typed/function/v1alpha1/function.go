@@ -57,7 +57,7 @@ type functions struct {
 }
 
 // newFunctions returns a Functions
-func newFunctions(c *FlowV1alpha1Client, namespace string) *functions {
+func newFunctions(c *ExtensionsV1alpha1Client, namespace string) *functions {
 	return &functions{
 		client: c.RESTClient(),
 		ns:     namespace,

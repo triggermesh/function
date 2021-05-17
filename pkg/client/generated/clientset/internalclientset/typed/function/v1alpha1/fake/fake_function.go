@@ -32,13 +32,13 @@ import (
 
 // FakeFunctions implements FunctionInterface
 type FakeFunctions struct {
-	Fake *FakeFlowV1alpha1
+	Fake *FakeExtensionsV1alpha1
 	ns   string
 }
 
-var functionsResource = schema.GroupVersionResource{Group: "flow.triggermesh.io", Version: "v1alpha1", Resource: "functions"}
+var functionsResource = schema.GroupVersionResource{Group: "extensions.triggermesh.io", Version: "v1alpha1", Resource: "functions"}
 
-var functionsKind = schema.GroupVersionKind{Group: "flow.triggermesh.io", Version: "v1alpha1", Kind: "Function"}
+var functionsKind = schema.GroupVersionKind{Group: "extensions.triggermesh.io", Version: "v1alpha1", Kind: "Function"}
 
 // Get takes name of the function, and returns the corresponding function object, and an error if there is any.
 func (c *FakeFunctions) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.Function, err error) {

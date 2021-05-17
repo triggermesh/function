@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset"
-	flowv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1"
-	fakeflowv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1/fake"
+	extensionsv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1"
+	fakeextensionsv1alpha1 "github.com/triggermesh/function/pkg/client/generated/clientset/internalclientset/typed/function/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -76,7 +76,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// FlowV1alpha1 retrieves the FlowV1alpha1Client
-func (c *Clientset) FlowV1alpha1() flowv1alpha1.FlowV1alpha1Interface {
-	return &fakeflowv1alpha1.FakeFlowV1alpha1{Fake: &c.Fake}
+// ExtensionsV1alpha1 retrieves the ExtensionsV1alpha1Client
+func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface {
+	return &fakeextensionsv1alpha1.FakeExtensionsV1alpha1{Fake: &c.Fake}
 }

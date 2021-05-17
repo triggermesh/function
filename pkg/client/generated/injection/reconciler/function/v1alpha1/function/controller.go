@@ -44,7 +44,7 @@ import (
 
 const (
 	defaultControllerAgentName = "function-controller"
-	defaultFinalizerName       = "functions.flow.triggermesh.io"
+	defaultFinalizerName       = "functions.extensions.triggermesh.io"
 )
 
 // NewImpl returns a controller.Impl that handles queuing and feeding work from
@@ -92,7 +92,7 @@ func NewImpl(ctx context.Context, r Interface, optionsFns ...controller.OptionsF
 
 	logger = logger.With(
 		zap.String(logkey.ControllerType, ctrTypeName),
-		zap.String(logkey.Kind, "flow.triggermesh.io.Function"),
+		zap.String(logkey.Kind, "extensions.triggermesh.io.Function"),
 	)
 
 	impl := controller.NewImpl(rec, logger, ctrTypeName)

@@ -216,7 +216,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcEnvVar("CE_TYPE", ceAttr.Type),
 		resources.KnSvcEnvVar("CE_SOURCE", ceAttr.Source),
 		resources.KnSvcEnvVar("CE_SUBJECT", ceAttr.Subject),
-		resources.KnSvcAnnotation("flow.triggermesh.io/codeVersion", cm.ResourceVersion),
+		resources.KnSvcAnnotation("extensions.triggermesh.io/codeVersion", cm.ResourceVersion),
 		resources.KnSvcVisibility(f.Spec.Public),
 		resources.KnSvcLabel(map[string]string{labelKey: f.Name}),
 		resources.KnSvcOwner(f),
