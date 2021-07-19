@@ -92,17 +92,6 @@ rules:
     - patch
     - watch
 ---
-# Use this aggregated ClusterRole when you need readonly access to "Addressables"
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: addressable-resolver
-aggregationRule:
-  clusterRoleSelectors:
-  - matchLabels:
-      duck.knative.dev/addressable: "true"
-rules: [] # Rules are automatically filled in by the controller manager.
----
 # The role is needed for the aggregated role addressable-resolver in knative-eventing to provide readonly access to "Addressables".
 # see https://github.com/knative/eventing/blob/release-0.16/docs/spec/channel.md#aggregated-addressable-resolver-clusterrole
 apiVersion: rbac.authorization.k8s.io/v1

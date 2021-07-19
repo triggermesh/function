@@ -1,0 +1,7 @@
+resources:
+- config/200-clusterrole.yaml
+- config/200-user-clusterrole.yaml
+- config/200-serviceaccount.yaml
+- config/201-clusterrolebinding.yaml
+- config/300-function.yaml
+- config/controller.yaml
