@@ -16,7 +16,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: function-controller
-  namespace: function
+  namespace: triggermesh
 spec:
   replicas: 1
   selector:
