@@ -18,6 +18,7 @@ package resources
 
 import (
 	"path"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -182,4 +183,16 @@ func firstContainer(svc *servingv1.Service) *corev1.Container {
 		*containers = make([]corev1.Container, 1)
 	}
 	return &(*containers)[0]
+}
+
+func KnSvcEnvFromMap(prefix string, vars map[string]string) knSvcOption {
+	return func(svc *servingv1.Service) {
+		svcEnvVars := envVarsFrom(svc)
+		for k, v := range vars {
+			*svcEnvVars = append(*svcEnvVars, corev1.EnvVar{
+				Name:  strings.ToUpper(prefix + k),
+				Value: v,
+			})
+		}
+	}
 }
