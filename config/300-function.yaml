@@ -60,6 +60,9 @@ spec:
             public:
               description: 'Should the function be publicly available.'
               type: boolean
+            responseMode:
+              description: 'Whether function responds with CE payload only or with full event.'
+              type: string
             ceOverrides:
               type: object
               description: "Defines overrides to control modifications of the event attributes."

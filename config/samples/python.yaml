@@ -18,21 +18,33 @@ metadata:
   name: inline-python-function
 spec:
   runtime: python
+  responseMode: event
   public: true
   ceOverrides:
     extensions:
       type: io.triggermesh.python.sample
-  entrypoint: foo
+  entrypoint: endpoint
   code: |
-    import urllib.request
+    from random import randrange
 
-    def foo(event, context):
-      resp = urllib.request.urlopen(event['url'])
-      page = resp.read()
+    def endpoint(event, context):
+      val = randrange(10)
+      if (val % 2) == 0:
+        result = {
+          "type" : "io.triggermesh.klr.even",
+          "datacontenttype" : "application/json",
+          "data" : {
+            "value" : val
+          }
+        }
 
-      response = {
-        "statusCode": resp.status,
-        "body": str(page)
-      }
+      else:
+        result = {
+          "type" : "io.triggermesh.klr.odd",
+          "datacontenttype" : "application/json",
+          "data" : {
+            "value" : val
+          }
+        }
+      return result
 
-      return response

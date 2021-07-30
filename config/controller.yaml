@@ -56,8 +56,8 @@ spec:
           value: triggermesh.io/routing
 
         - name: RUNTIME_KLR_PYTHON
-          value: gcr.io/triggermesh/knative-lambda-python37:v1.5.1
+          value: gcr.io/triggermesh/knative-lambda-python37:v1.8.1
         - name: RUNTIME_KLR_NODE
-          value: gcr.io/triggermesh/knative-lambda-node10:v1.5.1
+          value: gcr.io/triggermesh/knative-lambda-node10:v1.8.1
         - name: RUNTIME_KLR_RUBY
-          value: gcr.io/triggermesh/knative-lambda-ruby25:v1.5.1
+          value: gcr.io/triggermesh/knative-lambda-ruby25:v1.8.1
