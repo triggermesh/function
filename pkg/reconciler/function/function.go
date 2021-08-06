@@ -43,6 +43,7 @@ import (
 	functionv1alpha1 "github.com/triggermesh/function/pkg/apis/function/v1alpha1"
 	functionreconciler "github.com/triggermesh/function/pkg/client/generated/injection/reconciler/function/v1alpha1/function"
 	"github.com/triggermesh/function/pkg/reconciler/function/resources"
+	"github.com/triggermesh/function/pkg/reconciler/function/semantic"
 )
 
 const (
@@ -104,9 +105,8 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 
 	sink, err := r.resolveSink(ctx, o)
 	if err != nil {
-		logger.Error("Error resolving sink", zap.Error(err))
 		o.Status.MarkSinkUnavailable()
-		return err
+		return fmt.Errorf("resolving sink URI: %w", err)
 	}
 	o.Status.SinkURI = sink
 	o.Status.MarkSinkAvailable()
@@ -242,13 +242,12 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 	}
 	actualKsvc := ksvcList[0]
 
-	if !reflect.DeepEqual(actualKsvc.Spec, expectedKsvc.Spec) ||
-		!reflect.DeepEqual(actualKsvc.Labels, expectedKsvc.Labels) {
-		actualKsvc.Spec = expectedKsvc.Spec
-		actualKsvc.Labels = expectedKsvc.Labels
-		return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
+	if semantic.Semantic.DeepEqual(expectedKsvc, actualKsvc) {
+		return actualKsvc, nil
 	}
-	return actualKsvc, nil
+	actualKsvc.Spec = expectedKsvc.Spec
+	actualKsvc.Labels = expectedKsvc.Labels
+	return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
 }
 
 func (r *Reconciler) statusAttributes(attributes map[string]string) []duckv1.CloudEventAttributes {
