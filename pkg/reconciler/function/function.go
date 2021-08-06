@@ -43,6 +43,7 @@ import (
 	functionv1alpha1 "github.com/triggermesh/function/pkg/apis/function/v1alpha1"
 	functionreconciler "github.com/triggermesh/function/pkg/client/generated/injection/reconciler/function/v1alpha1/function"
 	"github.com/triggermesh/function/pkg/reconciler/function/resources"
+	"github.com/triggermesh/function/pkg/reconciler/function/semantic"
 )
 
 const (
@@ -102,8 +103,16 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 	}
 	o.Status.MarkConfigmapAvailable()
 
+	sink, err := r.resolveSink(ctx, o)
+	if err != nil {
+		o.Status.MarkSinkUnavailable()
+		return fmt.Errorf("resolving sink URI: %w", err)
+	}
+	o.Status.SinkURI = sink
+	o.Status.MarkSinkAvailable()
+
 	// Reconcile Transformation Adapter
-	ksvc, err := r.reconcileKnService(ctx, o, cm)
+	ksvc, err := r.reconcileKnService(ctx, o, cm, sink)
 	if err != nil {
 		logger.Error("Error reconciling Kn Service", zap.Error(err))
 		o.Status.MarkServiceUnavailable(o.Name)
@@ -139,10 +148,21 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, o *functionv1alpha1.Func
 		o.Status.CloudEventAttributes = r.statusAttributes(o.Spec.CloudEventOverrides.Extensions)
 	}
 
-	o.Status.MarkSinkAvailable()
-
 	logger.Debug("Transformation reconciled")
 	return newReconciledNormal(o.Namespace, o.Name)
+}
+
+func (r *Reconciler) resolveSink(ctx context.Context, f *functionv1alpha1.Function) (*apis.URL, error) {
+	if f.Spec.Sink != nil {
+		dest := f.Spec.Sink.DeepCopy()
+		if dest.Ref != nil {
+			if dest.Ref.Namespace == "" {
+				dest.Ref.Namespace = f.GetNamespace()
+			}
+		}
+		return r.sinkResolver.URIFromDestinationV1(ctx, *dest, f)
+	}
+	return &apis.URL{}, nil
 }
 
 func (r *Reconciler) reconcileConfigmap(ctx context.Context, f *functionv1alpha1.Function) (*corev1.ConfigMap, error) {
@@ -174,30 +194,12 @@ func (r *Reconciler) reconcileConfigmap(ctx context.Context, f *functionv1alpha1
 	return actualCm, nil
 }
 
-func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1.Function, cm *corev1.ConfigMap) (*servingv1.Service, error) {
+func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1.Function, cm *corev1.ConfigMap, sink *apis.URL) (*servingv1.Service, error) {
 	logger := logging.FromContext(ctx)
 
 	image, err := r.lookupRuntimeImage(f.Spec.Runtime)
 	if err != nil {
 		return nil, err
-	}
-
-	var sink string
-	if f.Spec.Sink != nil {
-		dest := f.Spec.Sink.DeepCopy()
-		if dest.Ref != nil {
-			if dest.Ref.Namespace == "" {
-				dest.Ref.Namespace = f.GetNamespace()
-			}
-		}
-
-		uri, err := r.sinkResolver.URIFromDestinationV1(ctx, *dest, f)
-		if err != nil {
-			logger.Infof("Sink resolution error: %v", err)
-		} else {
-			f.Status.SinkURI = uri
-			sink = uri.String()
-		}
 	}
 
 	filename := fmt.Sprintf("source.%s", fileExtension(f.Spec.Runtime))
@@ -219,7 +221,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcImage(image),
 		resources.KnSvcMountCm(cm.Name, filename),
 		resources.KnSvcEntrypoint(klrEntrypoint),
-		resources.KnSvcEnvVar("K_SINK", sink),
+		resources.KnSvcEnvVar("K_SINK", sink.String()),
 		resources.KnSvcEnvVar("_HANDLER", handler),
 		resources.KnSvcEnvVar("RESPONSE_FORMAT", "CLOUDEVENTS"),
 		resources.KnSvcEnvVar("CE_FUNCTION_RESPONSE_MODE", f.Spec.ResponseMode),
@@ -240,13 +242,12 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 	}
 	actualKsvc := ksvcList[0]
 
-	if !reflect.DeepEqual(actualKsvc.Spec, expectedKsvc.Spec) ||
-		!reflect.DeepEqual(actualKsvc.Labels, expectedKsvc.Labels) {
-		actualKsvc.Spec = expectedKsvc.Spec
-		actualKsvc.Labels = expectedKsvc.Labels
-		return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
+	if semantic.Semantic.DeepEqual(expectedKsvc, actualKsvc) {
+		return actualKsvc, nil
 	}
-	return actualKsvc, nil
+	actualKsvc.Spec = expectedKsvc.Spec
+	actualKsvc.Labels = expectedKsvc.Labels
+	return r.knServingClientSet.ServingV1().Services(f.Namespace).Update(ctx, actualKsvc, v1.UpdateOptions{})
 }
 
 func (r *Reconciler) statusAttributes(attributes map[string]string) []duckv1.CloudEventAttributes {

@@ -65,7 +65,7 @@ func (fs *FunctionStatus) MarkServiceAvailable() {
 }
 
 // MarkSinkUnavailable updates Function status with Sink Not Ready condition
-func (fs *FunctionStatus) MarkSinkUnavailable(name string) {
+func (fs *FunctionStatus) MarkSinkUnavailable() {
 	condSet.Manage(fs).MarkFalse(
 		ConditionSinkReady,
 		"SinkUnavailable",
