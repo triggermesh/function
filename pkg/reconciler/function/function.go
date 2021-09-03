@@ -221,6 +221,7 @@ func (r *Reconciler) reconcileKnService(ctx context.Context, f *functionv1alpha1
 		resources.KnSvcImage(image),
 		resources.KnSvcMountCm(cm.Name, filename),
 		resources.KnSvcEntrypoint(klrEntrypoint),
+		resources.KnSvcEnvVar(eventStoreEnv, f.Spec.EventStore.URI),
 		resources.KnSvcEnvVar("K_SINK", sink.String()),
 		resources.KnSvcEnvVar("_HANDLER", handler),
 		resources.KnSvcEnvVar("RESPONSE_FORMAT", "CLOUDEVENTS"),

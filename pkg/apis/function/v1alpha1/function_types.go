@@ -56,8 +56,16 @@ type FunctionSpec struct {
 	Public              bool                        `json:"public,omitempty"`
 	Code                string                      `json:"code"`
 	ResponseMode        string                      `json:"responseMode,omitempty"`
+	EventStore          EventStoreConnection        `json:"eventStore,omitempty"`
 	CloudEventOverrides *duckv1.CloudEventOverrides `json:"ceOverrides"`
 	Sink                *duckv1.Destination         `json:"sink"`
+}
+
+// EventStoreConnection contains the data to connect to
+// an EventStore instance
+type EventStoreConnection struct {
+	// URI is the gRPC location to the EventStore
+	URI string `json:"uri"`
 }
 
 // FunctionStatus communicates the observed state of the Function (from the controller).

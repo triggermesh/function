@@ -38,7 +38,10 @@ import (
 	functionreconciler "github.com/triggermesh/function/pkg/client/generated/injection/reconciler/function/v1alpha1/function"
 )
 
-const runtimeEnvPrefix = "RUNTIME_"
+const (
+	eventStoreEnv    = "EVENTSTORE_URI"
+	runtimeEnvPrefix = "RUNTIME_"
+)
 
 // New creates a Reconciler and returns the result of NewImpl.
 func NewController(
