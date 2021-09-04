@@ -63,6 +63,12 @@ spec:
             responseMode:
               description: 'Whether function responds with CE payload only or with full event.'
               type: string
+            eventStore:
+              type: object
+              description: 'EventStore service connection string.'
+              properties:
+                uri:
+                  type: string
             ceOverrides:
               type: object
               description: "Defines overrides to control modifications of the event attributes."
