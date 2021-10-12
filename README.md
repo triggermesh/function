@@ -1,3 +1,5 @@
+*This project is now archived, please go to [triggermesh/triggermesh](https://github.com/triggermesh/triggermesh) repository for additional development.*
+
 # Triggermesh Function
 
 Function CRD is the experimental Triggermesh component that provides a way to
